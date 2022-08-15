@@ -250,6 +250,18 @@ define Device/netgear_readynas-duo-v2
 endef
 TARGET_DEVICES += netgear_readynas-duo-v2
 
+define Device/qnap_ts-219
+  DEVICE_VENDOR := QNAP
+  DEVICE_MODEL := TS-219
+  KERNEL := kernel-bin | append-dtb | uImage none
+  DEVICE_DTS := kirkwood-ts219pp
+  IMAGES := sysupgrade.bin zImage
+  SUPPORTED_DEVICES += qnap,ts219
+  DEVICE_PACKAGES := kmod-ata-marvell-sata kmod-fs-ext4 \
+	kmod-gpio-button-hotplug kmod-rtc-s35390a kmod-usb3 qcontrol
+endef
+TARGET_DEVICES += qnap_ts-219
+
 define Device/raidsonic_ib-nas62x0
   DEVICE_VENDOR := RaidSonic
   DEVICE_MODEL := ICY BOX IB-NAS62x0
@@ -319,5 +331,6 @@ define Device/zyxel_nsa325
   SUPPORTED_DEVICES += nsa325
 endef
 TARGET_DEVICES += zyxel_nsa325
+
 
 $(eval $(call BuildImage))

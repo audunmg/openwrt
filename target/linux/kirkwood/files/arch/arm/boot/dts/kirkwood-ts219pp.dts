@@ -1,0 +1,157 @@
+// SPDX-License-Identifier: GPL-2.0
+/dts-v1/;
+
+#include "kirkwood.dtsi"
+#include "kirkwood-6282.dtsi"
+
+/ {
+        model = "QNAP TS219 family";
+        compatible = "qnap,ts219", "marvell,kirkwood-88f6281", "marvell,kirkwood";
+
+        memory {
+                device_type = "memory";
+                reg = <0x00000000 0x20000000>;
+        };
+
+        chosen {
+                bootargs = "console=ttyS0,115200n8";
+                stdout-path = &uart0;
+        };
+
+        ocp@f1000000 {
+                i2c@11000 {
+                        status = "okay";
+                        clock-frequency = <400000>;
+
+                        s35390a: s35390a@30 {
+                                compatible = "s35390a";
+                                reg = <0x30>;
+                        };
+                };
+                serial@12000 {
+                        status = "okay";
+                };
+                serial@12100 {
+                        status = "okay";
+                };
+                poweroff@12100 {
+                        compatible = "qnap,power-off";
+                        reg = <0x12100 0x100>;
+                        clocks = <&gate_clk 7>;
+                };
+                spi@10600 {
+                        status = "okay";
+
+                        m25p128@0 {
+                                #address-cells = <1>;
+                                #size-cells = <1>;
+                                compatible = "m25p128", "jedec,spi-nor";
+                                reg = <0>;
+                                spi-max-frequency = <20000000>;
+                                mode = <0>;
+
+                                partition@0 {
+                                        reg = <0x00000000 0x00080000>;
+                                        label = "U-Boot";
+                                };
+
+                                partition@200000 {
+                                        reg = <0x00200000 0x00600000>;
+                                        label = "kernel";
+                                };
+
+                                partition@600000 {
+                                        reg = <0x00600000 0x00800000>;
+                                        label = "ubi";
+                                };
+                                partition@40000 {
+                                        reg = <0x00080000 0x00040000>;
+                                        label = "U-Boot Config";
+                                };
+                                partition@c0000 {
+                                        reg = <0x000c0000 0x00140000>;
+                                        label = "NAS Config";
+                                };
+                        };
+                };
+
+		pinctrl: pin-controller@10000 {
+
+			pinctrl-0 = <&pmx_ram_size &pmx_board_id>;
+			pinctrl-names = "default";
+
+			pmx_ram_size: pmx-ram-size {
+				/* RAM: 0: 256 MB, 1: 512 MB */
+				marvell,pins = "mpp36";
+				marvell,function = "gpio";
+			};
+			pmx_reset_button: pmx-reset-button {
+				marvell,pins = "mpp37";
+				marvell,function = "gpio";
+			};
+			pmx_USB_copy_button: pmx-USB-copy-button {
+				marvell,pins = "mpp43";
+				marvell,function = "gpio";
+			};
+			pmx_board_id: pmx-board-id {
+				/* 0: TS-11x, 1: TS-21x */
+				marvell,pins = "mpp44";
+				marvell,function = "gpio";
+			};
+		};
+	};
+
+	gpio_keys {
+		compatible = "gpio-keys";
+		#address-cells = <1>;
+		#size-cells = <0>;
+		pinctrl-0 = <&pmx_reset_button &pmx_USB_copy_button>;
+		pinctrl-names = "default";
+
+		copy {
+			label = "USB Copy";
+			linux,code = <KEY_COPY>;
+			gpios = <&gpio1 11 GPIO_ACTIVE_LOW>;
+		};
+		reset {
+			label = "Reset";
+			linux,code = <KEY_RESTART>;
+			gpios = <&gpio1 5 GPIO_ACTIVE_LOW>;
+		};
+	};
+};
+
+&mdio {
+        status = "okay";
+
+        ethphy0: ethernet-phy@X {
+                /* overwrite reg property in board file */
+        };
+};
+
+&eth0 {
+        status = "okay";
+        ethernet0-port@0 {
+                phy-handle = <&ethphy0>;
+        };
+};
+
+&pciec {
+        status = "okay";
+};
+
+&pcie0 {
+        status = "okay";
+};
+
+&rtc {
+        /*
+         * There is a s35390a available on the i2c bus, the internal rtc isn't
+         * working (probably no crystal assembled).
+         */
+        status = "disabled";
+};
+
+&ethphy0 { reg = <0>; };
+
+&pcie1 { status = "okay"; };

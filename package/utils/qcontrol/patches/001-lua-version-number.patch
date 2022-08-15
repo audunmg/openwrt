@@ -1,0 +1,17 @@
+diff --git a/Makefile b/Makefile
+--- a/Makefile
++++ b/Makefile
+@@ -6,9 +6,9 @@ CPPFLAGS += -DQCONTROL_VERSION=\"$(VERSION)\"
+ PKG_CONFIG ?= pkg-config
+ LDFLAGS  += -g
+
+-CFLAGS       += $(shell $(PKG_CONFIG) --cflags lua5.1)
+-LIBS_DYNAMIC += -lpthread $(shell $(PKG_CONFIG) --libs lua5.1)
+-LIBS_STATIC  += -lpthread $(shell $(PKG_CONFIG) --variable=libdir lua5.1)/liblua5.1.a -lm -ldl
++CFLAGS       += $(shell $(PKG_CONFIG) --cflags lua)
++LIBS_DYNAMIC += -lpthread $(shell $(PKG_CONFIG) --libs lua)
++LIBS_STATIC  += -lpthread $(shell $(PKG_CONFIG) --variable=libdir lua)/liblua.a -lm -ldl
+
+ ifeq ($(shell $(PKG_CONFIG) --exists libsystemd-daemon 2>/dev/null && echo 1),1)
+ CPPFLAGS_DYNAMIC += -DHAVE_SYSTEMD
+
